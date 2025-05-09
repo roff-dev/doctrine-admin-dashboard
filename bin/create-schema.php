@@ -1,9 +1,14 @@
 <?php
 /**
- * Database Schema Creation Script
+ * Database Schema Management Script
  * 
- * This script creates the database if it doesn't exist and then creates all the tables
- * based on the entity classes in the application.
+ * This script handles all schema operations:
+ * 1. Creates the database if it doesn't exist
+ * 2. Creates tables if they don't exist
+ * 3. Updates existing tables if entity definitions have changed
+ * 
+ * This is the only schema script you need to run when setting up the application
+ * or after making changes to entity definitions.
  */
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -12,14 +17,17 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMSetup;
-use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Tools\SchemaTool;
 
 // Import entity classes
 use App\Entity\User;
 use App\Entity\Company;
 use App\Entity\Employee;
 
-// Define database parameters directly (same as in doctrine.php)
+// Check for command line options
+$forceMode = in_array('--force', $_SERVER['argv'] ?? []);
+
+// Define database parameters
 $dbParams = [
     'driver'   => 'pdo_mysql',
     'user'     => 'root',
@@ -54,19 +62,48 @@ try {
     $connection = DriverManager::getConnection($dbParams, $config);
     $entityManager = new EntityManager($connection, $config);
     
-    // Step 4: Generate and execute schema - manually specifying entity classes
-    $tool = new \Doctrine\ORM\Tools\SchemaTool($entityManager);
-    
-    // Create metadata collection manually
+    // Step 4: Create schema tool and get entity metadata
+    $tool = new SchemaTool($entityManager);
     $classes = [
         $entityManager->getClassMetadata(User::class),
         $entityManager->getClassMetadata(Company::class),
         $entityManager->getClassMetadata(Employee::class)
     ];
     
-    // Create the schema for these entities
-    $tool->createSchema($classes);
-    echo "Created database schema successfully.\n";
+    // Step 5: Handle schema creation/update based on current state
+    if ($forceMode) {
+        // Force mode: Drop and recreate all tables
+        echo "Force mode enabled. Dropping and recreating all tables...\n";
+        $tool->dropSchema($classes);
+        $tool->createSchema($classes);
+        echo "Database schema recreated successfully.\n";
+    } else {
+        // First check if we need to update an existing schema
+        $updateSql = $tool->getUpdateSchemaSql($classes, true);
+        
+        if (empty($updateSql)) {
+            // If no updates needed, try creating the schema (will be skipped if tables exist)
+            try {
+                $tool->createSchema($classes);
+                echo "Created database schema successfully.\n";
+            } catch (\Exception $e) {
+                // If schema exists and no updates needed, we're done
+                echo "Database schema is up to date.\n";
+            }
+        } else {
+            // Update existing schema
+            echo "Updating database schema...\n";
+            foreach ($updateSql as $sql) {
+                echo "Executing: $sql\n";
+            }
+            $tool->updateSchema($classes, true);
+            echo "Database schema updated successfully.\n";
+        }
+    }
+    
+    echo "\nSchema setup complete! Next steps:\n";
+    echo "1. Create admin user: php bin/create-admin-user.php\n";
+    echo "2. Start server:     php -S localhost:8000 -t public\n";
     
 } catch (\Exception $e) {
     echo "An error occurred: " . $e->getMessage() . "\n";
