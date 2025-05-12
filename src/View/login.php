@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login</title>
-    <!-- Bootstrap CSS -->
+    <!-- Bootstrap CSS for responsive design and styling -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
@@ -42,24 +42,8 @@
                 </div>
             </div>
         </div>
-
-        <div class="row justify-content-center mt-5">
-            <div class="col-md-6">
-                <!-- Login card with shadow effect -->
-                <div class="card shadow">
-                    <!-- Card header with title -->
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0">Credentials</h4>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Username: </strong>admin@admin.com</p>    
-                        <p><strong>Password: </strong>password</p>     
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
-    <!-- Bootstrap JS -->
+    <!-- Bootstrap JS for interactive components -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html> 

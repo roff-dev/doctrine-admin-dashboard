@@ -15,7 +15,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <!-- Brand/logo -->
-            <a class="navbar-brand" href="index.php">Doctrine Dash</a>
+            <a class="navbar-brand" href="index.php">Admin Dashboard</a>
             <!-- Mobile toggle button for responsive design -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
