@@ -7,7 +7,7 @@
  */
 
 // Set page title and header
-$pageTitle = 'Admin Dashboard';
+$pageTitle = 'Doctrine Dash';
 $pageHeader = 'Dashboard';
 
 // Get counts from database for display in dashboard widgets

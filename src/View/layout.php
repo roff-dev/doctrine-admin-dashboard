@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Dynamic page title from controller or default to 'Admin Dashboard' -->
-    <title><?= $pageTitle ?? 'Admin Dashboard' ?></title>
-    <!-- Bootstrap CSS for responsive design and styling -->
+    <!-- Dynamic page title from controller or default to 'Doctrine Dash' -->
+    <title><?= $pageTitle ?? 'Doctrine Dash' ?></title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons for UI elements -->
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </head>
 <body>
@@ -15,7 +15,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <!-- Brand/logo -->
-            <a class="navbar-brand" href="index.php">Admin Dashboard</a>
+            <a class="navbar-brand" href="index.php">Doctrine Dash</a>
             <!-- Mobile toggle button for responsive design -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -72,7 +72,7 @@
         <?= $content ?? '' ?>
     </div>
 
-    <!-- Bootstrap JS for interactive components -->
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html> 
