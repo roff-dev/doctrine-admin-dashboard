@@ -53,11 +53,6 @@
 
     <!-- Main content container -->
     <div class="container mt-4">
-        <!-- Optional page header from controller -->
-        <?php if (isset($pageHeader)): ?>
-            <h1 class="mb-4"><?= $pageHeader ?></h1>
-        <?php endif; ?>
-        
         <!-- Success message alert if set -->
         <?php if (isset($successMessage)): ?>
             <div class="alert alert-success"><?= $successMessage ?></div>

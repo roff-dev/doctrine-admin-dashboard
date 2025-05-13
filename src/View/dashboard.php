@@ -17,7 +17,7 @@ $employeeCount = $entityManager->getRepository(\App\Entity\Employee::class)->cou
 // Start output buffer to capture the view content
 ob_start();
 ?>
-
+<h1 class="mb-4"><?= $pageHeader ?></h1>
 <div class="row">
     <!-- Companies summary card -->
     <div class="col-md-6">
