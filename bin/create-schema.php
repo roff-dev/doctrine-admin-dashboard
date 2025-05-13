@@ -15,8 +15,6 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 // Import required Doctrine classes
 use Doctrine\DBAL\DriverManager;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\ORMSetup;
 use Doctrine\ORM\Tools\SchemaTool;
 
 // Import entity classes
@@ -27,15 +25,10 @@ use App\Entity\Employee;
 // Check for command line options
 $forceMode = in_array('--force', $_SERVER['argv'] ?? []);
 
-// Define database parameters
-$dbParams = [
-    'driver'   => 'pdo_mysql',
-    'user'     => 'root',
-    'password' => '',
-    'dbname'   => 'doctrine_admin',
-    'host'     => 'localhost',
-    'charset'  => 'utf8mb4',
-];
+// Get database parameters from doctrine.php
+$connectionParams = require_once __DIR__ . '/../config/doctrine.php';
+$entityManager = $connectionParams; // The doctrine.php file returns the EntityManager
+$dbParams = $entityManager->getConnection()->getParams();
 
 try {
     // Step 1: Create a temporary connection without specifying a database
@@ -52,15 +45,6 @@ try {
     
     // Close temporary connection
     $tmpConnection->close();
-    
-    // Step 3: Create a full connection to the new database
-    $config = ORMSetup::createAttributeMetadataConfiguration(
-        [__DIR__ . '/../src'],  // paths to where your entities are located
-        true                    // dev mode (enable caching for production)
-    );
-    
-    $connection = DriverManager::getConnection($dbParams, $config);
-    $entityManager = new EntityManager($connection, $config);
     
     // Step 4: Create schema tool and get entity metadata
     $tool = new SchemaTool($entityManager);

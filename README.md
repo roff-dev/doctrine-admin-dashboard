@@ -32,7 +32,10 @@ This project is an admin dashboard built with PHP and Doctrine ORM that allows m
    ```
    php bin/create-admin-user.php
    ```
-
+6. Run database seeder:
+   ```
+   php bin/load-fixtures.php
+   ```
 ## Usage
 
 1. Start a PHP development server:
