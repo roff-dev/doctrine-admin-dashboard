@@ -19,6 +19,7 @@ class AppFixtures implements FixtureInterface
             $company->setName('Company ' . $i);
             $company->setEmail('company' . $i . '@example.com');
             $company->setWebsite('https://company' . $i . '.com');
+            $company->setLogo('https://picsum.photos/id/' . ($i + 100) . '/100/100');
             $manager->persist($company);
             $companies[] = $company; //Create array of companies to use for Employees
         }
