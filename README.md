@@ -80,3 +80,19 @@ Make sure to run these commands in a terminal that points to the root directory 
 - phone
 - created_at
 - updated_at 
+
+## Roadmap
+
+While this project is currently in a working state, I am committed to making constant improvements and implementing new features. This roadmap outlines the planned enhancements and additions that will further expand the dashboard's capabilities and improve user experience.
+
+Future features and improvements:
+
+- Improved entity details (Employee tasks, stats, and tickets)
+- Individual user profiles and pages (Companies and Employees have personalised profiles only showing related data)
+- Improved dashboard view (quick access statistic visuals)
+- Admin individual user management (manage user profiles: change permissions, tasks, and tickets)
+- Cron Jobs for weekly reports
+
+- Repo CI/CD for Pull Requests
+
+These planned additions aim to make this admin dashboard even more powerful and versatile for real-world business applications. Feel free to suggest additional features or improvements by opening an issue.
