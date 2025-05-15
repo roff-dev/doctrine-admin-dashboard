@@ -1,6 +1,10 @@
 # Admin Dashboard with Doctrine ORM
 
-This project is an admin dashboard built with PHP and Doctrine ORM that allows managing companies and employees.
+This project demonstrates a robust enterprise-level admin dashboard built with PHP and Doctrine ORM, designed to showcase how Doctrine can be effectively implemented in real-world business applications. The dashboard provides a comprehensive solution for businesses to manage their organizational structure through a secure, centralized portal that offers complete oversight of companies and their workforce.
+
+While using fabricated data for demonstration purposes, the application implements production-ready authentication, data validation, and CRUD operations that mirror real-world business requirements. System administrators can use this tool to gather critical workforce information, manage company resources, and make data-driven decisions based on the centralized information provided.
+
+The project serves dual purposes: demonstrating technical proficiency with Doctrine ORM and PHP while offering a practical solution to the universal business need for internal management systems. The secure authentication system ensures that sensitive employee and company data remains accessible only to authorized personnel, maintaining data privacy and security standards that would be expected in an enterprise environment.
 
 ## Features
 
@@ -18,12 +22,14 @@ This project is an admin dashboard built with PHP and Doctrine ORM that allows m
 
 ## Installation
 
+Make sure to run these commands in a terminal that points to the root directory of this project
+
 1. Clone the repository
 2. Install dependencies:
    ```
    composer install
    ```
-3. Configure database connection in `config/doctrine.php`
+3. Configure database connection in `config/doctrine.php` (Schema creates the db so default config can be used unless you require a specific setup)
 4. Create database schema:
    ```
    php bin/create-schema.php
