@@ -111,9 +111,10 @@ ob_start();
         <div class="card h-100">
             <div class="card-header">
                 <h5 class="mb-0"><i class="bi bi-people"></i> Employees by Company</h5>
+                <small class="text-muted">Workforce distribution</small>
             </div>
-            <div class="card-body">
-                <canvas id="employeesChart"></canvas>
+            <div class="card-body d-flex align-items-center justify-content-center">
+                <canvas id="employeesChart" style="max-height: 280px;"></canvas>
             </div>
         </div>
     </div>
@@ -123,9 +124,10 @@ ob_start();
         <div class="card h-100">
             <div class="card-header">
                 <h5 class="mb-0"><i class="bi bi-person-plus"></i> Hiring Trends</h5>
+                <small class="text-muted">Monthly hiring vs departures</small>
             </div>
-            <div class="card-body">
-                <canvas id="hiringChart"></canvas>
+            <div class="card-body d-flex align-items-center justify-content-center">
+                <canvas id="hiringChart" style="max-height: 300px;"></canvas>
             </div>
         </div>
     </div>
@@ -135,9 +137,10 @@ ob_start();
         <div class="card h-100">
             <div class="card-header">
                 <h5 class="mb-0"><i class="bi bi-diagram-3"></i> Department Distribution</h5>
+                <small class="text-muted">Employee count by department</small>
             </div>
-            <div class="card-body">
-                <canvas id="departmentChart"></canvas>
+            <div class="card-body d-flex align-items-center justify-content-center">
+                <canvas id="departmentChart" style="max-height: 300px;"></canvas>
             </div>
         </div>
     </div>
@@ -146,10 +149,11 @@ ob_start();
     <div class="col-12 mb-4">
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Quarterly Performance</h5>
+                <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Company Performance Scores</h5>
+                <small class="text-muted">Overall business performance by quarter (target: 80%+)</small>
             </div>
-            <div class="card-body">
-                <canvas id="performanceChart" height="50"></canvas>
+            <div class="card-body" style="height: 400px;">
+                <canvas id="performanceChart"></canvas>
             </div>
         </div>
     </div>
@@ -214,18 +218,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 data: <?= json_encode($employeesByCompany['data']) ?>,
                 backgroundColor: <?= json_encode($employeesByCompany['colors']) ?>,
                 borderWidth: 2,
-                borderColor: '#fff'
+                borderColor: '#fff',
+                hoverOffset: 4
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: 20
+            },
             plugins: {
                 legend: {
                     position: 'bottom',
                     labels: {
-                        padding: 20,
-                        usePointStyle: true
+                        padding: 15,
+                        usePointStyle: true,
+                        font: {
+                            size: 11
+                        }
                     }
                 }
             }
@@ -242,22 +253,61 @@ document.addEventListener('DOMContentLoaded', function() {
                 label: 'Hired',
                 data: <?= json_encode($hiringTrends['hired']) ?>,
                 backgroundColor: '#28a745',
-                borderRadius: 5
+                borderRadius: 5,
+                borderWidth: 1,
+                borderColor: '#1e7e34'
             }, {
                 label: 'Departed',
                 data: <?= json_encode($hiringTrends['departed']) ?>,
                 backgroundColor: '#dc3545',
-                borderRadius: 5
+                borderRadius: 5,
+                borderWidth: 1,
+                borderColor: '#bd2130'
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    top: 10,
+                    bottom: 10
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
+                    max: Math.max(...<?= json_encode($hiringTrends['hired']) ?>, ...<?= json_encode($hiringTrends['departed']) ?>) + 2,
                     ticks: {
-                        stepSize: 1
+                        stepSize: 2,
+                        font: {
+                            size: 12
+                        }
+                    },
+                    grid: {
+                        color: '#e9ecef'
+                    }
+                },
+                x: {
+                    ticks: {
+                        font: {
+                            size: 11
+                        }
+                    },
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 15,
+                        font: {
+                            size: 12
+                        }
                     }
                 }
             }
@@ -274,18 +324,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 data: <?= json_encode($departmentDistribution['data']) ?>,
                 backgroundColor: <?= json_encode($departmentDistribution['colors']) ?>,
                 borderWidth: 2,
-                borderColor: '#fff'
+                borderColor: '#fff',
+                hoverOffset: 4
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: 20
+            },
             plugins: {
                 legend: {
                     position: 'bottom',
                     labels: {
-                        padding: 20,
-                        usePointStyle: true
+                        padding: 15,
+                        usePointStyle: true,
+                        font: {
+                            size: 11
+                        }
                     }
                 }
             }
@@ -299,18 +356,38 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: <?= json_encode($quarterlyPerformance['labels']) ?>,
             datasets: [{
-                label: 'Performance Score (%)',
+                label: 'Performance Score',
                 data: <?= json_encode($quarterlyPerformance['data']) ?>,
-                backgroundColor: [
-                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'
-                ],
+                backgroundColor: function(context) {
+                    const value = context.parsed.y;
+                    if (value >= 90) return '#28a745'; // Excellent - Green
+                    if (value >= 80) return '#ffc107'; // Good - Yellow
+                    if (value >= 70) return '#fd7e14'; // Fair - Orange
+                    return '#dc3545'; // Poor - Red
+                },
                 borderRadius: 8,
-                borderSkipped: false
+                borderSkipped: false,
+                borderWidth: 1,
+                borderColor: function(context) {
+                    const value = context.parsed.y;
+                    if (value >= 90) return '#1e7e34';
+                    if (value >= 80) return '#e0a800';
+                    if (value >= 70) return '#dc6502';
+                    return '#bd2130';
+                }
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    top: 20,
+                    left: 20,
+                    right: 20,
+                    bottom: 20
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
@@ -318,7 +395,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     ticks: {
                         callback: function(value) {
                             return value + '%';
+                        },
+                        stepSize: 10,
+                        font: {
+                            size: 12
                         }
+                    },
+                    grid: {
+                        color: '#e9ecef'
+                    }
+                },
+                x: {
+                    ticks: {
+                        font: {
+                            size: 12
+                        }
+                    },
+                    grid: {
+                        display: false
                     }
                 }
             },
@@ -329,7 +423,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return 'Performance: ' + context.parsed.y + '%';
+                            const value = context.parsed.y;
+                            let status = '';
+                            if (value >= 90) status = ' (Excellent)';
+                            else if (value >= 80) status = ' (Good)';
+                            else if (value >= 70) status = ' (Fair)';
+                            else status = ' (Needs Improvement)';
+                            return 'Performance: ' + value + '%' + status;
                         }
                     }
                 }
