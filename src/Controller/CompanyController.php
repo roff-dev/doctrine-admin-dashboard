@@ -166,8 +166,18 @@ switch ($action) {
     
     case 'list':
     default:
-        // Get all companies and show the list view
-        $companies = $entityManager->getRepository(Company::class)->findAll();
+        // Pagination logic for companies (5 per page)
+        $page = max(1, (int)($_GET['page'] ?? 1));
+        $limit = 5;
+        $offset = ($page - 1) * $limit;
+        
+        // Get total count for pagination
+        $totalCompanies = $entityManager->getRepository(Company::class)->count([]);
+        $totalPages = ceil($totalCompanies / $limit);
+        
+        // Get companies for current page
+        $companies = $entityManager->getRepository(Company::class)->findBy([], ['id' => 'ASC'], $limit, $offset);
+        
         include __DIR__ . '/../View/company/list.php';
         break;
 }

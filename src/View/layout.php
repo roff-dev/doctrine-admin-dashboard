@@ -55,12 +55,18 @@
     <div class="container mt-4">
         <!-- Success message alert if set -->
         <?php if (isset($successMessage)): ?>
-            <div class="alert alert-success"><?= $successMessage ?></div>
+            <div class="alert alert-success alert-dismissible fade show" role="alert" id="successAlert">
+                <?= $successMessage ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         <?php endif; ?>
         
         <!-- Error message alert if set -->
         <?php if (isset($errorMessage)): ?>
-            <div class="alert alert-danger"><?= $errorMessage ?></div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <?= $errorMessage ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         <?php endif; ?>
         
         <!-- Main content from the view -->
@@ -69,5 +75,19 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript for auto-hiding success messages -->
+    <script>
+        // Auto-hide success messages after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const successAlert = document.getElementById('successAlert');
+            if (successAlert) {
+                setTimeout(function() {
+                    const alertInstance = new bootstrap.Alert(successAlert);
+                    alertInstance.close();
+                }, 5000); // 5 seconds
+            }
+        });
+    </script>
 </body>
 </html> 

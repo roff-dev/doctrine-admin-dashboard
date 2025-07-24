@@ -44,15 +44,19 @@ if ($route === 'login' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $userRepository = $entityManager->getRepository(\App\Entity\User::class);
     $user = $userRepository->findOneBy(['email' => $email]);
     
-    // Verify the password and set session variables if valid
-    if ($user && password_verify($password, $user->getPassword())) {
+    // Check if user exists first, then verify password
+    if (!$user) {
+        // User with this email doesn't exist
+        $error = 'No account found with this email address';
+    } elseif (!password_verify($password, $user->getPassword())) {
+        // User exists but password is incorrect
+        $error = 'Incorrect password';
+    } else {
+        // Valid credentials - set session variables and redirect
         $_SESSION['user_id'] = $user->getId();
         $_SESSION['user_email'] = $user->getEmail();
         header('Location: index.php');
         exit();
-    } else {
-        // Set error message if login fails
-        $error = 'Invalid email or password';
     }
 }
 

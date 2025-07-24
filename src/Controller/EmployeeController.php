@@ -141,8 +141,18 @@ switch ($action) {
     
     case 'list':
     default:
-        // Get all employees and show the list view
-        $employees = $entityManager->getRepository(Employee::class)->findAll();
+        // Pagination logic for employees (10 per page)
+        $page = max(1, (int)($_GET['page'] ?? 1));
+        $limit = 10;
+        $offset = ($page - 1) * $limit;
+        
+        // Get total count for pagination
+        $totalEmployees = $entityManager->getRepository(Employee::class)->count([]);
+        $totalPages = ceil($totalEmployees / $limit);
+        
+        // Get employees for current page
+        $employees = $entityManager->getRepository(Employee::class)->findBy([], ['id' => 'ASC'], $limit, $offset);
+        
         include __DIR__ . '/../View/employee/list.php';
         break;
 }
