@@ -2,7 +2,7 @@
 /**
  * Doctrine Configuration File
  * 
- * Works both locally and on Railway hosting.
+ * Works with Railway's individual MySQL variables
  */
 
 use Doctrine\DBAL\DriverManager;
@@ -17,9 +17,20 @@ $config = ORMSetup::createAttributeMetadataConfiguration(
     true,
 );
 
-// Database configuration - Railway compatible
-if (isset($_ENV['DATABASE_URL']) || isset($_SERVER['DATABASE_URL'])) {
-    // Railway/Production environment
+// Database configuration - Railway compatible with individual MySQL vars
+if (isset($_ENV['MYSQLHOST']) || isset($_SERVER['MYSQLHOST'])) {
+    // Railway/Production environment with individual MySQL variables
+    $connectionParams = [
+        'driver'   => 'pdo_mysql',
+        'host'     => $_ENV['MYSQLHOST'] ?? $_SERVER['MYSQLHOST'],
+        'port'     => $_ENV['MYSQLPORT'] ?? $_SERVER['MYSQLPORT'] ?? 3306,
+        'user'     => $_ENV['MYSQLUSER'] ?? $_SERVER['MYSQLUSER'],
+        'password' => $_ENV['MYSQLPASSWORD'] ?? $_SERVER['MYSQLPASSWORD'],
+        'dbname'   => $_ENV['MYSQLDATABASE'] ?? $_SERVER['MYSQLDATABASE'],
+        'charset'  => 'utf8mb4',
+    ];
+} elseif (isset($_ENV['DATABASE_URL']) || isset($_SERVER['DATABASE_URL'])) {
+    // Fallback to DATABASE_URL if available
     $databaseUrl = $_ENV['DATABASE_URL'] ?? $_SERVER['DATABASE_URL'];
     $connectionParams = [
         'url' => $databaseUrl,
