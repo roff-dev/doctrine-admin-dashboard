@@ -25,6 +25,9 @@ if ($route === 'setup') {
     try {
         echo "🔧 Setting up database...\n\n";
         
+        // Make EntityManager available to the scripts
+        $GLOBALS['entityManager'] = $entityManager;
+        
         echo "📄 Creating database schema...\n";
         ob_start();
         include __DIR__ . '/../bin/create-schema.php';
