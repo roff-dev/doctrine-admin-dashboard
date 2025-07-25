@@ -2,8 +2,7 @@
 /**
  * Doctrine Configuration File
  * 
- * This file configures the Doctrine ORM connection and returns the EntityManager.
- * It also exports the $connectionParams for use by other scripts.
+ * Works both locally and on Railway hosting.
  */
 
 use Doctrine\DBAL\DriverManager;
@@ -18,15 +17,25 @@ $config = ORMSetup::createAttributeMetadataConfiguration(
     true,
 );
 
-// Database configuration parameters
-$connectionParams = [
-    'driver'   => 'pdo_mysql',
-    'user'     => 'root',
-    'password' => '',
-    'dbname'   => 'doctrine_admin',  
-    'host'     => 'localhost',
-    'charset'  => 'utf8mb4', 
-];
+// Database configuration - Railway compatible
+if (isset($_ENV['DATABASE_URL']) || isset($_SERVER['DATABASE_URL'])) {
+    // Railway/Production environment
+    $databaseUrl = $_ENV['DATABASE_URL'] ?? $_SERVER['DATABASE_URL'];
+    $connectionParams = [
+        'url' => $databaseUrl,
+        'charset' => 'utf8mb4',
+    ];
+} else {
+    // Local development environment
+    $connectionParams = [
+        'driver'   => 'pdo_mysql',
+        'user'     => 'root',
+        'password' => '',
+        'dbname'   => 'doctrine_admin',  
+        'host'     => 'localhost',
+        'charset'  => 'utf8mb4', 
+    ];
+}
 
 // Create a connection to the database
 $connection = DriverManager::getConnection($connectionParams, $config);
