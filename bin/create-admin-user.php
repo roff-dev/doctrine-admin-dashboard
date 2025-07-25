@@ -7,14 +7,17 @@
  * The script checks if the admin user already exists before creating it to avoid duplicates.
  */
 
-// Include the autoloader to load all necessary classes
-require_once __DIR__ . '/../vendor/autoload.php';
-
-// Get the entity manager from the configuration
-$entityManager = require_once __DIR__ . '/../config/doctrine.php';
-
 // Import the User entity class
 use App\Entity\User;
+
+// Get EntityManager from global scope (passed from setup route)
+if (isset($GLOBALS['entityManager'])) {
+    $entityManager = $GLOBALS['entityManager'];
+} else {
+    // Fallback for command line usage
+    require_once __DIR__ . '/../vendor/autoload.php';
+    $entityManager = require __DIR__ . '/../config/doctrine.php';
+}
 
 // Check if admin user already exists by looking for the email in the database
 $userRepository = $entityManager->getRepository(User::class);
