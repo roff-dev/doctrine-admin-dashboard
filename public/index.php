@@ -17,7 +17,43 @@ session_start();
 
 // Define routes - get the route from the URL query parameter or default to 'dashboard'
 $route = $_GET['route'] ?? 'dashboard';
-
+// Database setup route for Railway deployment
+if ($route === 'setup') {
+    echo "<h1>Database Setup</h1>";
+    echo "<pre>";
+    
+    try {
+        echo "🔧 Setting up database...\n\n";
+        
+        echo "📄 Creating database schema...\n";
+        ob_start();
+        include __DIR__ . '/../bin/create-schema.php';
+        $output = ob_get_clean();
+        echo $output . "\n";
+        
+        echo "👤 Creating admin user...\n";
+        ob_start(); 
+        include __DIR__ . '/../bin/create-admin-user.php';
+        $output = ob_get_clean();
+        echo $output . "\n";
+        
+        echo "📊 Loading sample data...\n";
+        ob_start();
+        include __DIR__ . '/../bin/load-fixtures.php';
+        $output = ob_get_clean();
+        echo $output . "\n";
+        
+        echo "✅ Database setup completed successfully!\n\n";
+        echo "🎉 <strong><a href='index.php'>Access your dashboard now!</a></strong>\n";
+        
+    } catch (Exception $e) {
+        echo "❌ Setup failed: " . $e->getMessage() . "\n";
+        echo "Error details: " . $e->getTraceAsString() . "\n";
+    }
+    
+    echo "</pre>";
+    exit();
+}
 // Check if user is authenticated by looking for user_id in the session
 $isAuthenticated = isset($_SESSION['user_id']);
 
