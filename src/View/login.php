@@ -51,7 +51,7 @@
                             <h4 class="mb-0">Credentials</h4>
                         </div>
                         <div class="card-body">
-                            <p><strong>Username: </strong>admin@admin.com</p>    
+                            <p><strong>Email: </strong>admin@admin.com</p>    
                             <p><strong>Password: </strong>password</p>     
                         </div>
                     </div>
