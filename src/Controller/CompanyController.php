@@ -166,17 +166,55 @@ switch ($action) {
     
     case 'list':
     default:
+        // Get search parameters
+        $quickSearch = trim($_GET['search'] ?? '');
+        $searchName = trim($_GET['search_name'] ?? '');
+        $searchEmail = trim($_GET['search_email'] ?? '');
+        $searchWebsite = trim($_GET['search_website'] ?? '');
+        
         // Pagination logic for companies (5 per page)
         $page = max(1, (int)($_GET['page'] ?? 1));
         $limit = 5;
         $offset = ($page - 1) * $limit;
         
-        // Get total count for pagination
-        $totalCompanies = $entityManager->getRepository(Company::class)->count([]);
+        // Build search query
+        $queryBuilder = $entityManager->getRepository(Company::class)->createQueryBuilder('c');
+        
+        // Quick search - searches all fields
+        if (!empty($quickSearch)) {
+            $queryBuilder->andWhere('(c.name LIKE :quickSearch OR c.email LIKE :quickSearch OR c.website LIKE :quickSearch)')
+                        ->setParameter('quickSearch', '%' . $quickSearch . '%');
+        }
+        
+        // Advanced search conditions (only if no quick search)
+        if (empty($quickSearch)) {
+            if (!empty($searchName)) {
+                $queryBuilder->andWhere('c.name LIKE :name')
+                            ->setParameter('name', '%' . $searchName . '%');
+            }
+            
+            if (!empty($searchEmail)) {
+                $queryBuilder->andWhere('c.email LIKE :email')
+                            ->setParameter('email', '%' . $searchEmail . '%');
+            }
+            
+            if (!empty($searchWebsite)) {
+                $queryBuilder->andWhere('c.website LIKE :website')
+                            ->setParameter('website', '%' . $searchWebsite . '%');
+            }
+        }
+        
+        // Get total count for pagination (with search filters)
+        $countQuery = clone $queryBuilder;
+        $totalCompanies = $countQuery->select('COUNT(c.id)')->getQuery()->getSingleScalarResult();
         $totalPages = ceil($totalCompanies / $limit);
         
-        // Get companies for current page
-        $companies = $entityManager->getRepository(Company::class)->findBy([], ['id' => 'ASC'], $limit, $offset);
+        // Get companies for current page with search filters
+        $companies = $queryBuilder->orderBy('c.id', 'ASC')
+                                 ->setFirstResult($offset)
+                                 ->setMaxResults($limit)
+                                 ->getQuery()
+                                 ->getResult();
         
         include __DIR__ . '/../View/company/list.php';
         break;

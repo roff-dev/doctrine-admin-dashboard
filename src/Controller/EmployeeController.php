@@ -141,17 +141,62 @@ switch ($action) {
     
     case 'list':
     default:
+        // Get search parameters
+        $quickSearch = trim($_GET['search'] ?? '');
+        $searchName = trim($_GET['search_name'] ?? '');
+        $searchEmail = trim($_GET['search_email'] ?? '');
+        $searchPhone = trim($_GET['search_phone'] ?? '');
+        $searchCompany = trim($_GET['search_company'] ?? '');
+        
         // Pagination logic for employees (10 per page)
         $page = max(1, (int)($_GET['page'] ?? 1));
         $limit = 10;
         $offset = ($page - 1) * $limit;
         
-        // Get total count for pagination
-        $totalEmployees = $entityManager->getRepository(Employee::class)->count([]);
+        // Build search query with company join
+        $queryBuilder = $entityManager->getRepository(Employee::class)->createQueryBuilder('e')
+                                     ->leftJoin('e.company', 'c');
+        
+        // Quick search - searches all relevant fields
+        if (!empty($quickSearch)) {
+            $queryBuilder->andWhere('(e.first_name LIKE :quickSearch OR e.last_name LIKE :quickSearch OR e.email LIKE :quickSearch OR e.phone LIKE :quickSearch OR c.name LIKE :quickSearch)')
+                        ->setParameter('quickSearch', '%' . $quickSearch . '%');
+        }
+        
+        // Advanced search conditions (only if no quick search)
+        if (empty($quickSearch)) {
+            if (!empty($searchName)) {
+                $queryBuilder->andWhere('(e.first_name LIKE :name OR e.last_name LIKE :name)')
+                            ->setParameter('name', '%' . $searchName . '%');
+            }
+            
+            if (!empty($searchEmail)) {
+                $queryBuilder->andWhere('e.email LIKE :email')
+                            ->setParameter('email', '%' . $searchEmail . '%');
+            }
+            
+            if (!empty($searchPhone)) {
+                $queryBuilder->andWhere('e.phone LIKE :phone')
+                            ->setParameter('phone', '%' . $searchPhone . '%');
+            }
+            
+            if (!empty($searchCompany)) {
+                $queryBuilder->andWhere('c.name LIKE :company')
+                            ->setParameter('company', '%' . $searchCompany . '%');
+            }
+        }
+        
+        // Get total count for pagination (with search filters)
+        $countQuery = clone $queryBuilder;
+        $totalEmployees = $countQuery->select('COUNT(e.id)')->getQuery()->getSingleScalarResult();
         $totalPages = ceil($totalEmployees / $limit);
         
-        // Get employees for current page
-        $employees = $entityManager->getRepository(Employee::class)->findBy([], ['id' => 'ASC'], $limit, $offset);
+        // Get employees for current page with search filters
+        $employees = $queryBuilder->orderBy('e.id', 'ASC')
+                                 ->setFirstResult($offset)
+                                 ->setMaxResults($limit)
+                                 ->getQuery()
+                                 ->getResult();
         
         include __DIR__ . '/../View/employee/list.php';
         break;

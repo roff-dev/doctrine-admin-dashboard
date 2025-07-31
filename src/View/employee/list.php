@@ -7,6 +7,135 @@
     </a>
 </div>
 
+<!-- Hybrid Search Form -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-search"></i> Search Employees</h5>
+    </div>
+    <div class="card-body">
+        <!-- Quick Search Form -->
+        <form method="GET" action="index.php" id="quickSearchForm">
+            <input type="hidden" name="route" value="employees">
+            
+            <div class="row g-3">
+                <div class="col-12">
+                    <label for="quick_search" class="form-label">Quick Search</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="quick_search" name="search" 
+                               value="<?= htmlspecialchars($quickSearch ?? '') ?>" 
+                               placeholder="Search by name, email, phone, or company...">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search"></i> Search
+                        </button>
+                    </div>
+                    <div class="form-text">Search across all employee fields including company name</div>
+                </div>
+                
+                <div class="col-12">
+                    <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="collapse" data-bs-target="#advancedSearch" aria-expanded="false">
+                        <i class="bi bi-gear"></i> Advanced Search
+                    </button>
+                    <a href="index.php?route=employees" class="btn btn-outline-secondary btn-sm ms-2">
+                        <i class="bi bi-x-circle"></i> Clear All
+                    </a>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Advanced Search (Collapsible) -->
+        <div class="collapse mt-3" id="advancedSearch">
+            <hr>
+            <form method="GET" action="index.php" id="advancedSearchForm">
+                <input type="hidden" name="route" value="employees">
+                
+                <div class="row g-3">
+                    <div class="col-12">
+                        <h6 class="text-muted"><i class="bi bi-sliders"></i> Advanced Search Options</h6>
+                        <p class="small text-muted">Use specific fields for more precise results</p>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="search_name" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="search_name" name="search_name" 
+                               value="<?= htmlspecialchars($searchName ?? '') ?>" 
+                               placeholder="e.g., John, Jones">
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="search_email" class="form-label">Email</label>
+                        <input type="text" class="form-control" id="search_email" name="search_email" 
+                               value="<?= htmlspecialchars($searchEmail ?? '') ?>" 
+                               placeholder="e.g., @example.com">
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="search_phone" class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="search_phone" name="search_phone" 
+                               value="<?= htmlspecialchars($searchPhone ?? '') ?>" 
+                               placeholder="e.g., 07123">
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="search_company" class="form-label">Company</label>
+                        <input type="text" class="form-control" id="search_company" name="search_company" 
+                               value="<?= htmlspecialchars($searchCompany ?? '') ?>" 
+                               placeholder="e.g., Company 4">
+                    </div>
+                    
+                    <div class="col-12">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i> Advanced Search
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="clearAdvancedSearchEmployees()">
+                                <i class="bi bi-x-circle"></i> Clear Advanced
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for search behavior -->
+<script>
+function clearAdvancedSearchEmployees() {
+    document.getElementById('search_name').value = '';
+    document.getElementById('search_email').value = '';
+    document.getElementById('search_phone').value = '';
+    document.getElementById('search_company').value = '';
+}
+
+// Auto-expand advanced search if advanced fields have values
+document.addEventListener('DOMContentLoaded', function() {
+    const hasAdvancedValues = <?= (!empty($searchName) || !empty($searchEmail) || !empty($searchPhone) || !empty($searchCompany)) ? 'true' : 'false' ?>;
+    if (hasAdvancedValues) {
+        const advancedCollapse = new bootstrap.Collapse(document.getElementById('advancedSearch'), {show: true});
+    }
+});
+</script>
+
+<!-- Search Results Info -->
+<?php if (!empty($quickSearch) || !empty($searchName) || !empty($searchEmail) || !empty($searchPhone) || !empty($searchCompany)): ?>
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i>
+        <strong>Search Results:</strong> Found <?= $totalEmployees ?> employees
+        <?php if (!empty($quickSearch)): ?>
+            matching "<?= htmlspecialchars($quickSearch) ?>" (quick search)
+        <?php else: ?>
+            <?php
+            $searchTerms = [];
+            if (!empty($searchName)) $searchTerms[] = "Name: \"$searchName\"";
+            if (!empty($searchEmail)) $searchTerms[] = "Email: \"$searchEmail\"";
+            if (!empty($searchPhone)) $searchTerms[] = "Phone: \"$searchPhone\"";
+            if (!empty($searchCompany)) $searchTerms[] = "Company: \"$searchCompany\"";
+            if (!empty($searchTerms)) echo " matching " . implode(", ", $searchTerms) . " (advanced search)";
+            ?>
+        <?php endif; ?>
+    </div>
+<?php endif; ?>
+
 <!-- Card containing the employees table -->
 <div class="card">
     <div class="card-body">
@@ -88,10 +217,24 @@
         <?php if ($totalPages > 1): ?>
             <nav aria-label="Employees pagination" class="mt-3">
                 <ul class="pagination justify-content-center">
+                    <?php
+                    // Build query string for pagination links (preserve search parameters)
+                    $searchParams = [];
+                    if (!empty($quickSearch)) {
+                        $searchParams['search'] = $quickSearch;
+                    } else {
+                        if (!empty($searchName)) $searchParams['search_name'] = $searchName;
+                        if (!empty($searchEmail)) $searchParams['search_email'] = $searchEmail;
+                        if (!empty($searchPhone)) $searchParams['search_phone'] = $searchPhone;
+                        if (!empty($searchCompany)) $searchParams['search_company'] = $searchCompany;
+                    }
+                    $searchQuery = !empty($searchParams) ? '&' . http_build_query($searchParams) : '';
+                    ?>
+                    
                     <!-- Previous page link -->
                     <?php if ($page > 1): ?>
                         <li class="page-item">
-                            <a class="page-link" href="index.php?route=employees&page=<?= $page - 1 ?>">
+                            <a class="page-link" href="index.php?route=employees&page=<?= $page - 1 ?><?= $searchQuery ?>">
                                 <i class="bi bi-chevron-left"></i> Previous
                             </a>
                         </li>
@@ -109,7 +252,7 @@
                             </li>
                         <?php else: ?>
                             <li class="page-item">
-                                <a class="page-link" href="index.php?route=employees&page=<?= $i ?>"><?= $i ?></a>
+                                <a class="page-link" href="index.php?route=employees&page=<?= $i ?><?= $searchQuery ?>"><?= $i ?></a>
                             </li>
                         <?php endif; ?>
                     <?php endfor; ?>
@@ -117,7 +260,7 @@
                     <!-- Next page link -->
                     <?php if ($page < $totalPages): ?>
                         <li class="page-item">
-                            <a class="page-link" href="index.php?route=employees&page=<?= $page + 1 ?>">
+                            <a class="page-link" href="index.php?route=employees&page=<?= $page + 1 ?><?= $searchQuery ?>">
                                 Next <i class="bi bi-chevron-right"></i>
                             </a>
                         </li>
